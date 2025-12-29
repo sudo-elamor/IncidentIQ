@@ -1,0 +1,17 @@
+services:
+  api:
+    build: ./system/api
+    container_name: api
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  feeder:
+    build: ./feeder
+    container_name: feeder
+    depends_on:
+      - api
+    environment:
+      LOG_MODE: http
+      HTTP_ENDPOINT: http://api:8000/logs/ingest
+      HTTP_TIMEOUT: 5

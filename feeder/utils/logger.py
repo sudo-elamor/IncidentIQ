@@ -28,6 +28,9 @@ def log_output(log: str):
     Supports stdout, file, or HTTP POST.
     """
     log_dict = json.loads(log)
+    logger.info(f"sending log: {log_dict}")
+
+    
 
     if LOG_MODE in ("stdout", "file"):
         logger.info(json.dumps(log_dict))
@@ -35,8 +38,9 @@ def log_output(log: str):
     elif LOG_MODE == "http":
         try:
             resp = requests.post(
-                HTTP_ENDPOINT, json={"log": log_dict}, timeout=HTTP_TIMEOUT
+                HTTP_ENDPOINT, json=log_dict, timeout=HTTP_TIMEOUT
             )
+            logger.info(f"response code from receiver {resp.status_code}")
             if resp.status_code >= 400:
                 logger.warning(f"Failed to send log via HTTP: {resp.status_code}")
         except requests.RequestException as e:

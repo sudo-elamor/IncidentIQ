@@ -4,7 +4,7 @@ import random
 from config import LOGS_PER_SECOND, LATENCY_MS_MIN, LATENCY_MS_MAX
 from utils.csv_reader import read_loghub_csv
 from utils.log_generator import generate_log
-from utils.logger import log_output, logger  # <- unified logger
+from utils.logger import log_output, logger
 
 def main():
     dataset = "linux"
