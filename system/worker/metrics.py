@@ -41,3 +41,8 @@ task_processing_seconds = Histogram(
     "incidentiq_task_processing_seconds",
     "Time taken to process Celery tasks"
 )
+
+dlq_total = Counter(
+    "incidentiq_dlq_total",
+    "Total number of messages sent to DLQ"
+)

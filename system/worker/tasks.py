@@ -25,10 +25,17 @@ def process_log(self, payload: dict):
             task_succeeded_total.inc()
             return {"success": "processed"}
 
-        except Exception:
+        except Exception as exc:
             task_failed_total.inc()
 
-            if self.request.retries > 0:
+            if self.request.retries < self.max_retries:
                 task_retried_total.inc()
+                raise
+
+            celery_app.send_task(
+                "incidentiq.dlq_log",
+                args = [payload, str(exc)],
+                queue="dlq",
+            )
 
             raise

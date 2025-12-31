@@ -15,4 +15,4 @@ EXPOSE 8001
 
 #EXPORT PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
 
-CMD ["sh", "-c", "python metrics_server.py & celery -A celery_app worker -l info"]
+CMD ["sh", "-c", "python metrics_server.py & celery -A celery_app worker -Q celery,dlq -l info"]
