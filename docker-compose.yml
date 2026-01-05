@@ -19,7 +19,7 @@ services:
 
   broker:
     image: redis:7-alpine
-    container_name: incidentiq-broker
+    container_name: broker
     environment:
       - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
       - PROMETHEUS_PORT=8001
@@ -34,12 +34,19 @@ services:
     build: ./system/worker
     depends_on:
       - broker
+    container_name: worker
     ports:
       - "8001:8001"
+  
+  agent:
+    build: ./system/agent
+    container_name: agent
+    depends_on:
+      - broker
 
   prometheus:
     image: prom/prometheus
-    container_name: incidentiq-prometheus
+    container_name: prometheus
     volumes:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -47,7 +54,7 @@ services:
   
   grafana:
     image: grafana/grafana:latest
-    container_name: incidentiq-grafana
+    container_name: grafana
     ports:
       - "3000:3000"
     depends_on:

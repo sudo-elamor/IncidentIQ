@@ -7,6 +7,8 @@ from metrics import (
     task_processing_seconds,
     )
 
+AGENT_TASK_NAME = "incidentiq.agent.process_log"
+
 @celery_app.task(
     name="incidentiq.process_log",
     bind=True,
@@ -21,6 +23,13 @@ def process_log(self, payload: dict):
         try:
             if "CORRUPTED" in str(payload):
                 raise ValueError("Bad log")
+            print("Processing log:", payload)
+            
+            celery_app.send_task(
+                AGENT_TASK_NAME,
+                args=[payload["raw_log"]],
+                queue="agent_queue",
+            )
 
             task_succeeded_total.inc()
             return {"success": "processed"}

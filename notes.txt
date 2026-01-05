@@ -69,3 +69,37 @@ redis will store:
 | Task state           | Celery metadata        |
 | Backpressure metrics | Queue length           |
 | (Later) Rate limit   | Counters               |
+
+This isn't  “a ChatGPT wrapper”.
+
+It is:
+
+An AI execution platform
+
+With async safety
+
+Stable contracts
+
+Future agent orchestration
+
+Production failure handling
+
+API
+ ↓
+logs_queue
+ ↓
+Log Worker
+   - schema validation
+   - deduplication
+   - light enrichment
+ ↓
+agent_queue
+ ↓
+Agent Worker
+   - aggregation
+   - sampling
+   - error detection
+   - AgentInput creation
+   - LLM call
+   - AgentOutput
+   - DB insert
