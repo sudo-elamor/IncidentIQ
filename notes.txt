@@ -1,0 +1,105 @@
+API owns request validation & admission control
+Celery owns task lifecycle
+Redis owns message transport
+
+Why Redis (or any broker) is fundamentally required
+
+this is a distributed systems law.
+
+The broker solves 4 hard problems
+1️⃣ Durability
+
+Messages survive:
+
+crashes
+
+restarts
+
+redeploys
+
+Redis/Kafka/RabbitMQ exist only for this.
+
+2️⃣ Decoupling
+Producer speed ≠ Consumer speed
+
+
+API can ingest at:
+
+100k/sec
+
+Workers can process at:
+
+10k/sec
+
+Broker absorbs the difference.
+
+3️⃣ Coordination
+
+Multiple producers
+Multiple consumers
+
+One shared truth:
+
+Who processed what?
+What failed?
+What needs retry?
+
+4️⃣ Backpressure & flow control
+
+When workers slow:
+
+queue grows
+
+API remains fast
+
+scaling decisions become visible
+
+Without broker:
+
+memory explodes
+
+system dies silently
+
+redis will store:
+| Purpose              | Redis structure        |
+| -------------------- | ---------------------- |
+| Main task queue      | Celery default list    |
+| Retry queue          | Celery ETA sorted sets |
+| DLQ                  | Dedicated list / queue |
+| Task state           | Celery metadata        |
+| Backpressure metrics | Queue length           |
+| (Later) Rate limit   | Counters               |
+
+This isn't  “a ChatGPT wrapper”.
+
+It is:
+
+An AI execution platform
+
+With async safety
+
+Stable contracts
+
+Future agent orchestration
+
+Production failure handling
+
+API
+ ↓
+logs_queue
+ ↓
+Log Worker
+   - schema validation
+   - deduplication
+   - light enrichment
+ ↓
+agent_queue
+ ↓
+Agent Worker
+   - aggregation
+   - sampling
+   - error detection
+   - AgentInput creation
+   - LLM call
+   - AgentOutput
+   - DB insert
