@@ -43,6 +43,32 @@ services:
     container_name: agent
     depends_on:
       - broker
+    environment:
+      LLM_BASE_URL: http://llm:8002
+  
+  llm:
+    build: ./system/llm
+    container_name: llm
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: llama3.2:3b
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+  
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    environment:
+      OLLAMA_MODEL: "llama3.2:3b"
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
 
   prometheus:
     image: prom/prometheus
@@ -63,3 +89,4 @@ services:
 
 volumes:
   redis_data:
+  ollama_data:
