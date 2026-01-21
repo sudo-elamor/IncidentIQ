@@ -74,15 +74,16 @@ def build_agent_input(payload: LogIngestRequest) -> AgentInput:
     )
 
     trace = AgentTrace(
-        source = payload.source or "",
-        host = payload.host or "",
         batch_id = str(uuid.uuid4()),
         received_at = datetime.now(),
+        stats = stats,
+        routing = routing
     )
 
     return AgentInput(
+        raw_log_id = payload.raw_log_id,
+        source = payload.source or "",
+        host = payload.host or "",
         trace = trace,
         logs = enriched_logs,
-        stats = stats,
-        routing = routing,
     )

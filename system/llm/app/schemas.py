@@ -8,6 +8,7 @@ class LogContext(BaseModel):
     signal_type: str
 
 class AgentInput(BaseModel):
+    raw_log_id: int
     source: str
     host: str
     logs: List[LogContext]
