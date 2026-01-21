@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
 uvicorn = "*"
-pydantic = "*"
 celery = "*"
 redis = "*"
 prometheus-client = "==0.19.0"
+fastapi = "*"
+pydantic = "*"
+pydantic-settings = "*"
 
 [dev-packages]
 

@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install fastapi uvicorn prometheus-client redis
+
+COPY . /app
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8003"]

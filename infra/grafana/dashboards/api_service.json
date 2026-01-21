@@ -1,0 +1,90 @@
+{
+    "uid": "api-service-overview",
+    "title": "API Service Dashboard",
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Logs Ingested",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_logs_ingested_total", "refId": "A" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Tasks Enqueued",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_logs_enqueued_total", "refId": "B" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Open File Descriptors",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "process_open_fds", "refId": "C" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Ingestion Rate (logs/sec)",
+        "gridPos": { "x": 0, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "rate(incidentiq_logs_ingested_total[1m])",
+            "refId": "D"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Enqueue Rate (tasks/sec)",
+        "gridPos": { "x": 6, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "rate(incidentiq_logs_enqueued_total[1m])",
+            "refId": "E"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Resident Memory (MB)",
+        "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes / 1024 / 1024",
+            "refId": "F"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Logs Ingested Per Second",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate(incidentiq_logs_ingested_total[1m])",
+            "refId": "G"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "API CPU Usage",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total[1m])",
+            "refId": "H"
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -1,0 +1,184 @@
+{
+  "uid": "incidentiq-pipeline-overview",
+  "title": "IncidentIQ – Pipeline Overview",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Pipeline Health Score",
+      "gridPos": { "x": 18, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "clamp_min(100 - (30 * clamp_max(incidentiq_redis_queue_depth{queue=\"agent_queue\"} / (rate(llm_api_requests_total[1m]) + 1), 1)) - (40 * clamp_max((rate(incidentiq_task_failed_total[1m]) + rate(llm_api_failure_total[1m])) / (rate(incidentiq_task_succeeded_total[1m]) + 1), 1)) - (30 * clamp_max((incidentiq_redis_queue_depth{queue=\"api_queue\"} + incidentiq_redis_queue_depth{queue=\"agent_queue\"}) / 1000, 1)), 0)",
+          "refId": "HS"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 40 },
+              { "color": "yellow", "value": 70 },
+              { "color": "green", "value": 90 }
+            ]
+          }
+        }
+      }
+    },
+    
+    {
+      "type": "stat",
+      "title": "API Ingestion Rate (logs/sec)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "rate(incidentiq_logs_ingested_total[1m])", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Worker Throughput (tasks/sec)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "rate(incidentiq_task_succeeded_total[1m])", "refId": "B" }]
+    },
+    {
+      "type": "stat",
+      "title": "LLM Request Rate (req/sec)",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "rate(llm_api_requests_total[1m])", "refId": "C" }]
+    },
+    {
+      "type": "stat",
+      "title": "Queue Backlog (Enqueued - Succeeded)",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "incidentiq_logs_enqueued_total - incidentiq_task_succeeded_total", "refId": "D" }
+      ]
+    },
+
+    {
+      "type": "stat",
+      "title": "Backpressure Ratio (Agent Queue / LLM Rate)",
+      "gridPos": { "x": 0, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "incidentiq_redis_queue_depth{queue=\"agent_queue\"} / (rate(llm_api_requests_total[1m]) + 0.0001)",
+          "refId": "E"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total Logs Received",
+      "gridPos": { "x": 6, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "incidentiq_logs_ingested_total", "refId": "F" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total LLM Requests Processed",
+      "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "llm_api_requests_total", "refId": "G" }
+      ]
+    },
+
+    {
+      "type": "stat",
+      "title": "API Queue Depth",
+      "gridPos": { "x": 0, "y": 8, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "incidentiq_redis_queue_depth{queue=\"api_queue\"}", "refId": "H" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Agent Queue Depth (LLM Backlog)",
+      "gridPos": { "x": 6, "y": 8, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "incidentiq_redis_queue_depth{queue=\"agent_queue\"}", "refId": "I" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "DLQ Depth",
+      "gridPos": { "x": 12, "y": 8, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "incidentiq_redis_queue_depth{queue=\"dlq\"}", "refId": "J" }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Oldest Message Age (Seconds)",
+      "gridPos": { "x": 0, "y": 12, "w": 18, "h": 6 },
+      "targets": [
+        {
+          "expr": "incidentiq_redis_queue_oldest_message_age_seconds{queue=\"api_queue\"}",
+          "legendFormat": "API Queue",
+          "refId": "K"
+        },
+        {
+          "expr": "incidentiq_redis_queue_oldest_message_age_seconds{queue=\"agent_queue\"}",
+          "legendFormat": "Agent Queue",
+          "refId": "L"
+        },
+        {
+          "expr": "incidentiq_redis_queue_oldest_message_age_seconds{queue=\"dlq\"}",
+          "legendFormat": "DLQ",
+          "refId": "M"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "End-to-End Flow Rates",
+      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 6 },
+      "targets": [
+        { "expr": "rate(incidentiq_logs_ingested_total[1m])", "legendFormat": "API Ingest", "refId": "N" },
+        { "expr": "rate(incidentiq_task_received_total[1m])", "legendFormat": "Worker Received", "refId": "O" },
+        { "expr": "rate(incidentiq_task_succeeded_total[1m])", "legendFormat": "Worker Succeeded", "refId": "P" },
+        { "expr": "rate(llm_api_requests_total[1m])", "legendFormat": "LLM Requests", "refId": "Q" }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Failure & Drop Signals",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(incidentiq_task_failed_total[1m])", "legendFormat": "Worker Failures", "refId": "R" },
+        { "expr": "rate(incidentiq_dlq_total[1m])", "legendFormat": "DLQ Messages", "refId": "S" },
+        { "expr": "rate(llm_api_failure_total[1m])", "legendFormat": "LLM Failures", "refId": "T" },
+        { "expr": "rate(llm_api_parse_failure_total[1m])", "legendFormat": "LLM Parse Failures", "refId": "U" }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Pipeline Latency Indicators",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(incidentiq_task_processing_seconds_sum[1m]) / rate(incidentiq_task_processing_seconds_count[1m])",
+          "legendFormat": "Worker Avg Processing Time (s)",
+          "refId": "V"
+        }
+      ]
+    }
+  ]
+}
