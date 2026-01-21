@@ -10,6 +10,7 @@ class LogEntry(BaseModel):
     metadata: Dict[str, str] = Field(default_factory=dict)
 
 class LogIngestRequest(BaseModel):
+    raw_log_id: int = Field(..., example=12345)
     source: str = Field(..., example="feeder")
     host: str = Field(..., example="feeder-01")
     logs: List[LogEntry]

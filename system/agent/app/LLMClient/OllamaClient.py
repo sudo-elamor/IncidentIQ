@@ -6,7 +6,7 @@ from schemas.llm_response import LLMResponse
 
 
 class LLMClient:
-    def __init__(self, timeout: int = 40):
+    def __init__(self, timeout: int = 120):
         #self.base_url = os.getenv("LLM_BASE_URL")
 
         self.base_url = os.getenv("LLM_BASE_URL")

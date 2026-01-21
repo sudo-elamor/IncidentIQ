@@ -27,13 +27,16 @@ class RoutingHint(BaseModel):
     requires_attention: bool
 
 class AgentTrace(BaseModel):
-    source: str
-    host: str
     batch_id: str
     received_at: datetime
+    stats: LogStats | None = None      
+    routing: RoutingHint | None = None
+
 
 class AgentInput(BaseModel):
-    trace: AgentTrace
+    raw_log_id: int
+    source: str
+    host: str
     logs: List[AgentLog]
-    stats: LogStats
-    routing: RoutingHint
+    trace: AgentTrace
+

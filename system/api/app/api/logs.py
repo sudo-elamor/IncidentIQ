@@ -28,7 +28,7 @@ def ingest_logs(payload: LogIngestRequest):
     celery_app.send_task(
         "incidentiq.process_log",
         args=[{
-            request_id: request_id,
+            "request_id" : request_id,
             "raw_log": payload.dict()
         }]
     )

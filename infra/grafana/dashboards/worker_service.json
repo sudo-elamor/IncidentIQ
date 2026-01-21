@@ -1,0 +1,84 @@
+{
+    "uid": "worker-service-overview",
+    "title": "Worker Service Dashboard",
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Tasks Received",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_task_received_total", "refId": "A" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Tasks Succeeded",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_task_succeeded_total", "refId": "B" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Tasks Failed",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_task_failed_total", "refId": "C" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Success Rate (%)",
+        "gridPos": { "x": 0, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "100 * incidentiq_task_succeeded_total / incidentiq_task_received_total",
+            "refId": "D"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Retry Count",
+        "gridPos": { "x": 6, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_task_retried_total", "refId": "E" }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "DLQ Messages",
+        "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+        "targets": [
+          { "expr": "incidentiq_dlq_total", "refId": "F" }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Tasks Received Per Second",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate(incidentiq_task_received_total[1m])",
+            "refId": "G"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Average Task Processing Time (seconds)",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "rate(incidentiq_task_processing_seconds_sum[1m]) / rate(incidentiq_task_processing_seconds_count[1m])",
+            "refId": "H"
+          }
+        ]
+      }
+    ]
+  }
+  

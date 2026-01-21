@@ -1,0 +1,115 @@
+{
+  "uid": "llm-overview",
+  "title": "LLM Service Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 2,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "llm_api_requests_total", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Successful Responses",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "llm_api_success_total", "refId": "B" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Failed Responses",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "llm_api_failure_total", "refId": "C" }
+      ]
+    },
+
+    {
+      "type": "stat",
+      "title": "Success Rate (%)",
+      "gridPos": { "x": 0, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "100 * llm_api_success_total / llm_api_requests_total",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "LLM Error Rate (%)",
+      "gridPos": { "x": 6, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "100 * llm_api_llm_error_total / llm_api_requests_total",
+          "refId": "E"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Parse Failures",
+      "gridPos": { "x": 12, "y": 4, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "llm_api_parse_failure_total", "refId": "F" }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Requests Per Second",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(llm_api_requests_total[1m])",
+          "refId": "G"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Success vs Failure Rate",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(llm_api_success_total[1m])",
+          "refId": "H"
+        },
+        {
+          "expr": "rate(llm_api_failure_total[1m])",
+          "refId": "I"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "LLM CPU Usage",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[1m])",
+          "refId": "J"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Resident Memory (MB)",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes / 1024 / 1024",
+          "refId": "K"
+        }
+      ]
+    }
+  ]
+}
