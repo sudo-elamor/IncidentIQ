@@ -45,6 +45,7 @@ def generate_incident(agent_input: AgentInput):
     llm_api_requests_total.inc()
 
     try:
+        print("\n\n\nReceived Agent Input",agent_input,"\n\n\n")
         prompt = build_prompt(agent_input)
 
         try:
