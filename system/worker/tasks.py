@@ -25,18 +25,6 @@ logger = get_logger("Worker Tasks")
     retry_kwargs={"max_retries": 3},
 )
 def process_log(self, payload: dict):
-    """
-    Payload format:
-    {
-        "request_id": "<uuid>",
-        "raw_log": {
-            "source": "...",
-            "host": "...",
-            "logs": [...]
-        }
-    }
-    """
-
     task_received_total.inc()
 
     with task_processing_seconds.time():
@@ -44,19 +32,15 @@ def process_log(self, payload: dict):
             logger.info("Processing payload: %s", payload)
 
             raw = payload.get("raw_log", {})
-            request_id = payload.get("request_id")
             logs = raw.get("logs", [])
-
-            if not logs:
-                logger.warning("No logs found in payload")
-                return
-
             raw_log_ids = []
 
-            # ---- Persist raw logs ----
+            # -----------------------------
+            # Persist raw logs
+            # -----------------------------
             with SessionLocal() as db:
                 for entry in logs:
-                    # 🔑 Message normalization (critical)
+                    print("\n\n\nEntry:", entry, "\n\n\n")
                     message = (
                         entry.get("message")
                         or entry.get("metadata", {}).get("content")
@@ -64,9 +48,7 @@ def process_log(self, payload: dict):
                     )
 
                     log = RawLog(
-                        timestamp=datetime.fromisoformat(
-                            entry.get("timestamp").replace("Z", "+00:00")
-                        ) if entry.get("timestamp") else datetime.utcnow(),
+                        timestamp=entry.get("timestamp") or datetime.now(),
                         source=raw.get("source", "unknown"),
                         host=raw.get("host", "unknown"),
                         service=entry.get("service") or "unknown",
@@ -74,47 +56,42 @@ def process_log(self, payload: dict):
                         message=message,
                         meta=entry.get("metadata", {}),
                     )
+                    print("processed logs to be added to db:", log.__dict__)
 
                     db.add(log)
-                    db.flush()          # assigns ID
+                    db.flush()   # assign ID without commit
                     raw_log_ids.append(log.id)
 
                 db.commit()
 
-            logger.info(
-                "Inserted %d raw logs | request_id=%s",
-                len(raw_log_ids),
-                request_id,
-            )
-
-            # ---- Send ONLY identifiers to agent ----
-            celery_app.send_task(
-                AGENT_TASK_NAME,
-                args=[{
-                    "request_id": request_id,
-                    "raw_log_ids": raw_log_ids,
-                    "source": raw.get("source", "unknown"),
-                    "host": raw.get("host", "unknown"),
-                }],
-                queue="agent_queue",
-            )
+            # -----------------------------
+            # Fan-out to agent
+            # -----------------------------
+            for log_id in raw_log_ids:
+                celery_app.send_task(
+                    AGENT_TASK_NAME,
+                    args=[{
+                        "raw_log_id": log_id,
+                        "source": raw.get("source", "unknown"),
+                        "host": raw.get("host", "unknown"),
+                        "logs": logs,
+                    }],
+                    queue="agent_queue",
+                )
 
             task_succeeded_total.inc()
             return {"status": "processed", "count": len(raw_log_ids)}
 
         except Exception as exc:
             task_failed_total.inc()
-            logger.exception("Worker failed: %s", exc)
 
             if self.request.retries < self.max_retries:
                 task_retried_total.inc()
                 raise
 
-            # ---- DLQ ----
             celery_app.send_task(
                 "incidentiq.dlq_log",
                 args=[payload, str(exc)],
                 queue="dlq",
             )
-
             raise
